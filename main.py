@@ -10,9 +10,10 @@ import os.path
 eventId="35388"
 eventname="Airtel+Delhi+Half+Marathon+2017"
 
+# Application Variables
+url="https://www.sportstimingsolutions.in/resultstable1.php"
+
 for bibno in range(1,100000,1):
-    # Application Variables
-    url="https://www.sportstimingsolutions.in/resultstable1.php"
     postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
     rank = []
     participants = []
