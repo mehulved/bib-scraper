@@ -4,8 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 import urllib
 import csv
-import os.path
-import time
+import os
+from time import sleep
 
 # User Variables
 eventId="35388"
@@ -14,17 +14,26 @@ eventname="Airtel+Delhi+Half+Marathon+2017"
 # Application Variables
 url="https://www.sportstimingsolutions.in/resultstable1.php"
 
-for bibno in range(1,100000,1):
+eventdir = eventname.replace("+","_")
+if not os.path.exists(eventdir):
+    os.makedirs(eventdir)
+
+for bibno in range(101,1000,1):
     postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
-    content = ""
     rank = []
     participants = []
     rank_category = []
+    result = {}
+    fieldnames = []
+    participant_name=""
+
     
     #Fetching the data
     req = requests.post(url, data=postdata)
     content = req.text
-    
+    with open(os.path.join(eventdir, str(bibno) + ".html"), 'w') as participant_html:
+        participant_html.write(content)
+
     # Parsing the html content
     soup = BeautifulSoup(content, "html.parser")
     input_tags = soup.find_all('input')
@@ -52,12 +61,13 @@ for bibno in range(1,100000,1):
     
     
     # Write the data to a dictionary
-    result = {}
-    fieldnames = []
     
+    if participant_name == "":
+        continue
+    print("I am bib no: {}".format(bibno))
     result["bib"] = bibno
     fieldnames.append("bib")
-    
+
     result["name"] = participant_name
     fieldnames.append("name")
     
@@ -96,10 +106,9 @@ for bibno in range(1,100000,1):
         size = size + 1
     
    
-    
     #Generate dictionary of result
     # Write to csv
-    eventfile=eventname.replace("+","_") + ".csv"
+    eventfile= os.path.join(eventdir, category + ".csv")
     file_exists = os.path.isfile(eventfile)
     with open(eventfile, "ab") as csvfile:
         writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter=",",quotechar='"',quoting=csv.QUOTE_ALL)
