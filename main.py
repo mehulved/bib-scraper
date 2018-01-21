@@ -37,7 +37,6 @@ for bibno in range(101,1000,1):
     # Parsing the html content
     soup = BeautifulSoup(content, "html.parser")
     input_tags = soup.find_all('input')
-    print input_tags
     for itag in input_tags:
         if 'name' in itag.attrs:
            if itag.attrs['name'] == "firstname":
@@ -64,7 +63,7 @@ for bibno in range(101,1000,1):
     
     if participant_name == "":
         continue
-    print("I am bib no: {}".format(bibno))
+    print("Processing bib no: {}".format(bibno))
     result["bib"] = bibno
     fieldnames.append("bib")
 
@@ -98,7 +97,6 @@ for bibno in range(101,1000,1):
         result[split_name + " speed"] = split_speed
         fieldnames.append(split_name + " speed")
     
-    print(len(rank_category))
     size = 0
     while size < len(rank_category):
         result[rank_category[size]] = rank[size] + "/" + participants[size]
