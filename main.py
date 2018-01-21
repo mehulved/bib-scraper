@@ -8,8 +8,8 @@ import os
 from time import sleep
 
 # User Variables
-eventId="35388"
-eventname="Airtel+Delhi+Half+Marathon+2017"
+eventId="37056"
+eventname="Tata+Mumbai+Marathon+2018"
 
 # Application Variables
 url="https://www.sportstimingsolutions.in/resultstable1.php"
@@ -18,7 +18,7 @@ eventdir = eventname.replace("+","_")
 if not os.path.exists(eventdir):
     os.makedirs(eventdir)
 
-for bibno in range(101,1000,1):
+for bibno in range(1,1000,1):
     postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
     rank = []
     participants = []
