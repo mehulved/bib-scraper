@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import urllib
 import csv
 import os.path
+import time
 
 # User Variables
 eventId="35388"
@@ -104,3 +105,5 @@ for bibno in range(1,100000,1):
         if not file_exists:
             writer.writeheader()
         writer.writerow(result)
+
+    sleep(2) # wait for 2 seconds after every request, to not overwhelm the server
