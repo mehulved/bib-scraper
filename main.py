@@ -16,6 +16,7 @@ url="https://www.sportstimingsolutions.in/resultstable1.php"
 
 for bibno in range(1,100000,1):
     postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
+    content = ""
     rank = []
     participants = []
     rank_category = []
