@@ -17,6 +17,9 @@ url="https://www.sportstimingsolutions.in/resultstable1.php"
 eventdir = eventname.replace("+","_")
 if not os.path.exists(eventdir):
     os.makedirs(eventdir)
+eventhtml = os.path.join(eventdir, "html")
+if not os.path.exists(eventhtml):
+    os.makedirs(eventhtml)
 
 for bibno in range(1,1000,1):
     postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
@@ -31,7 +34,7 @@ for bibno in range(1,1000,1):
     #Fetching the data
     req = requests.post(url, data=postdata)
     content = req.text
-    with open(os.path.join(eventdir, str(bibno) + ".html"), 'w') as participant_html:
+    with open(os.path.join(eventhtml, str(bibno) + ".html"), 'w') as participant_html:
         participant_html.write(content)
 
     # Parsing the html content
