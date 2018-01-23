@@ -32,7 +32,7 @@ for bibno in range(1,10,1):
     
     #Fetching the data
     userfile = os.path.join(eventhtml, str(bibno) + ".html") 
-    if not userfile:
+    if not os.path.exists(userfile):
         print("Requesting data for bib no: {}".format(bibno))
         postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
         req = requests.post(url, data=postdata)
