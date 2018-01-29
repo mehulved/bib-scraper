@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 from bs4 import BeautifulSoup
 import urllib
 import csv
 import os
 from time import sleep
+from datetime import datetime
 
 # User Variables
 eventId="37056"
@@ -13,6 +17,28 @@ eventname="Tata+Mumbai+Marathon+2018"
 
 # Application Variables
 url="https://www.sportstimingsolutions.in/resultstable1.php"
+
+print("Job started at: {}".format(datetime.now()))
+
+
+def requests_retry_session(
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 eventdir = eventname.replace("+","_")
 if not os.path.exists(eventdir):
@@ -33,14 +59,15 @@ for bibno in range(1,10,1):
     #Fetching the data
     userfile = os.path.join(eventhtml, str(bibno) + ".html") 
     if not os.path.exists(userfile):
-        print("Requesting data for bib no: {}".format(bibno))
+        fetch_time = datetime.now()
+        print("Requesting data for bib no: {} at {}.".format(bibno, fetch_time))
         postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
         req = requests.post(url, data=postdata)
         content = req.text
         with open(userfile, 'w') as participant_html:
             participant_html.write(content)
     else:
-        print("Opening existing file for bib no: {}".format(bibno))
+        print("Opening existing file for bib no: {}.".format(bibno))
         with open(userfile, 'r') as contentfile:
             content = contentfile.read()
 
@@ -84,7 +111,11 @@ for bibno in range(1,10,1):
     
         # Write the data to a dictionary
         
-        print("Processing bib no: {}\n\n".format(bibno))
+        print("Processing bib no: {}".format(bibno))
+
+        result["fetch_time"] = fetch_time
+        fieldnames.append("fetch_time")
+
         result["bib"] = bibno
         fieldnames.append("bib")
     
@@ -106,24 +137,29 @@ for bibno in range(1,10,1):
         result['rank_gender'] = rank_gender
         fieldnames.append('rank_gender')
 
-        if rank_ag != "":
-            result['rank_ag'] = rank_ag
-            fieldnames.append('rank_ag')
+        result['rank_ag'] = rank_ag
+        fieldnames.append('rank_ag')
 
         for split in split_list:
-           split_name = split[0].text.strip().replace('Split @ ','')
-           split_time = split[1].text.strip()
-           split_pace = split[2].text.strip()
-           split_speed = split[3].text.strip()
+            if len(split) > 1:
+                split_name = split[0].text.strip().replace('Split @ ','')
+                split_time = split[1].text.strip()
+                split_pace = split[2].text.strip()
+                split_speed = split[3].text.strip()
+            elif len(split) == 1: 
+                gun_time = split[0].text.strip().replace('Full Course - Gun Time - ','')
         
-           result[split_name + " time"] = split_time
-           fieldnames.append(split_name + " time")
+            result[split_name + " time"] = split_time
+            fieldnames.append(split_name + " time")
         
-           result[split_name + " pace"] = split_pace
-           fieldnames.append(split_name + " pace")
+            result[split_name + " pace"] = split_pace
+            fieldnames.append(split_name + " pace")
         
-           result[split_name + " speed"] = split_speed
-           fieldnames.append(split_name + " speed")
+            result[split_name + " speed"] = split_speed
+            fieldnames.append(split_name + " speed")
+
+        result["gun_time"] = gun_time
+        fieldnames.append('gun_time')
         
        
         #Generate dictionary of result
@@ -137,4 +173,7 @@ for bibno in range(1,10,1):
             writer.writerow(result)
 
     sleep(2) # wait for 2 seconds after every request, to not overwhelm the server
+    print("\n\n\n")
+
+print("Job ended at: {}".format(datetime.now()))
 
