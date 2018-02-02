@@ -29,7 +29,7 @@ def get_event_id(eventname):
         event_list = simplejson.loads(req.content)
         for event in event_list:
             if event['value'] == eventname:
-               eventId = event['id'] 
+               return event['id']
     else:
         print(req.reason)
         sys.exit(1)
@@ -61,7 +61,9 @@ eventhtml = os.path.join(eventdir, "html")
 if not os.path.exists(eventhtml):
     os.makedirs(eventhtml)
 
-for bibno in range(1,10,1):
+eventId = get_event_id(eventname)
+
+for bibno in range(1,200,1):
     rank = []
     participants = []
     rank_category = []
