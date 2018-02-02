@@ -78,7 +78,7 @@ for bibno in range(1,200,1):
         fetch_time = datetime.now()
         print("Requesting data for bib no: {} at {}.".format(bibno, fetch_time))
         postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
-        req = requests_retry_session.post(results_url, data=postdata)
+        req = requests_retry_session().post(results_url, data=postdata)
         content = req.text
         with open(userfile, 'w') as participant_html:
             participant_html.write(content)
