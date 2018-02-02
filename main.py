@@ -5,20 +5,34 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from bs4 import BeautifulSoup
+import simplejson
 import urllib
 import csv
 import os
+import sys
 from time import sleep
 from datetime import datetime
 
 # User Variables
-eventId="37056"
-eventname="Tata+Mumbai+Marathon+2018"
+eventname="Tata Mumbai Marathon 2018"
 
 # Application Variables
-url="https://www.sportstimingsolutions.in/resultstable1.php"
+results_url="https://www.sportstimingsolutions.in/resultstable1.php"
 
 print("Job started at: {}".format(datetime.now()))
+
+
+def get_event_id(eventname):
+    event_search_url="https://www.sportstimingsolutions.in/result_search.php?term=" + eventname.split(' ')[0]
+    req = requests.get(event_search_url)
+    if req.ok:
+        event_list = simplejson.loads(req.content)
+        for event in event_list:
+            if event['value'] == eventname:
+               eventId = event['id'] 
+    else:
+        print(req.reason)
+        sys.exit(1)
 
 
 def requests_retry_session(
@@ -62,7 +76,7 @@ for bibno in range(1,10,1):
         fetch_time = datetime.now()
         print("Requesting data for bib no: {} at {}.".format(bibno, fetch_time))
         postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
-        req = requests.post(url, data=postdata)
+        req = requests_retry_session.post(results_url, data=postdata)
         content = req.text
         with open(userfile, 'w') as participant_html:
             participant_html.write(content)
