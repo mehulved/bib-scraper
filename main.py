@@ -101,13 +101,16 @@ for bibno in range(1,200,1):
             netpace = participant_timing[1].text
 
         rank_table = soup.table.extract()
+        rank_header = rank_table.find_all('th')
         ranks = rank_table.find_all('td')
         if len(ranks) > 0:
             rank_overall = ranks[0].text.replace('of ','/')
             rank_gender = ranks[1].text.replace('of ','/')
             if len(ranks) == 2:
+                ag_name = ""
                 rank_ag = ""  
             if len(ranks) == 3:
+                ag_name = rank_header[3].text
                 rank_ag = ranks[2].text.replace('of ','/')
 
         split_list = []
@@ -141,6 +144,9 @@ for bibno in range(1,200,1):
         result["category"] = category
         fieldnames.append("category")
         
+        result['ag_name'] = ag_name
+        fieldnames.append('ag_name')
+
         result["net_time"] = nettime
         fieldnames.append("net_time")
         
