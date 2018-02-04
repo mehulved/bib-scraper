@@ -188,7 +188,6 @@ for bibno in range(1,200,1):
                 writer.writeheader()
             writer.writerow(result)
 
-    sleep(2) # wait for 2 seconds after every request, to not overwhelm the server
     print("\n\n\n")
 
 print("Job ended at: {}".format(datetime.now()))
