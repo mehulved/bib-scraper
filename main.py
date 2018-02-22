@@ -14,7 +14,7 @@ from time import sleep
 from datetime import datetime
 
 # User Variables
-eventname="Tata Mumbai Marathon 2018"
+eventname="Airtel Delhi Half Marathon 2017"
 
 # Application Variables
 results_url="https://www.sportstimingsolutions.in/resultstable1.php"
@@ -63,7 +63,7 @@ if not os.path.exists(eventhtml):
 
 eventId = get_event_id(eventname)
 
-for bibno in range(1,200,1):
+for bibno in range(1,100000,1):
     rank = []
     participants = []
     rank_category = []
@@ -89,49 +89,36 @@ for bibno in range(1,200,1):
 
     # Parsing the html content
     soup = BeautifulSoup(content, "html.parser")
-    heading_tags = soup.find_all(['h1','h2','h3','h4','h5'])
-    if len(heading_tags) > 0:
-        participant_name = heading_tags[2].text
-        category = heading_tags[4].text
-
-        timing_table = soup.table.extract()
-        participant_timing = timing_table.find_all('td')
-        if len(participant_timing) > 0:
-            nettime = participant_timing[0].text
-            netpace = participant_timing[1].text
-
-        rank_table = soup.table.extract()
-        rank_header = rank_table.find_all('th')
-        ranks = rank_table.find_all('td')
-        if len(ranks) > 0:
-            rank_overall = ranks[0].text.replace('of ','/')
-            rank_gender = ranks[1].text.replace('of ','/')
-            if len(ranks) == 2:
-                ag_name = ""
-                rank_ag = ""  
-            if len(ranks) == 3:
-                ag_name = rank_header[3].text
-                rank_ag = ranks[2].text.replace('of ','/')
-
-        split_list = []
-        splits_table = soup.table.extract()
-        splits_header_row = splits_table.tr.extract()
-        splits_header = splits_header_row.find_all('th')
-        if len(splits_header) > 0:
-           try:
-               while True:
-                   split_row = splits_table.tr.extract()
-                   split = split_row.find_all('td')
-                   if len(split) > 0:
-                      split_list.append(split)
-           except:
-               pass
-        
+    input_tags = soup.find_all('input')
+    for itag in input_tags:
+        if 'name' in itag.attrs:
+            if itag.attrs['name'] == "firstname":
+                participant_name = itag.attrs['value']
+            if itag.attrs['name'] == "chip_time":
+                nettime = itag.attrs['value']
+            if itag.attrs['name'] == "gun_time":
+                grosstime = itag.attrs['value']
+            if itag.attrs['name'] == "race_name":
+                category = itag.attrs['value']
+            if itag.attrs['name'] == "split_time":
+                splits = eval(urllib.unquote(itag.attrs['value']).decode('UTF8'))
+            if itag.attrs['name'] == "gender":
+                gender = itag.attrs['value']
+            if itag.attrs['name'] == "bracket_rank[]":
+                rank.append(itag.attrs['value'])
+            if itag.attrs['name'] == "bracket_participants[]":
+                participants.append(itag.attrs['value'])
+            if itag.attrs['name'] == "bracket_name[]":
+                rank_category.append(itag.attrs['value'])
     
-        # Write the data to a dictionary
+    # Write the data to a dictionary
         
-        print("Processing bib no: {}".format(bibno))
+    print("Processing bib no: {}".format(bibno))
 
+    result = {}
+    fieldnames = []
+    
+    if participant_name != "":
         result["fetch_time"] = fetch_time
         fieldnames.append("fetch_time")
 
@@ -140,50 +127,46 @@ for bibno in range(1,200,1):
     
         result["name"] = participant_name
         fieldnames.append("name")
-        
+
         result["category"] = category
         fieldnames.append("category")
-        
-        result['ag_name'] = ag_name
-        fieldnames.append('ag_name')
+
+        result["gender"] = gender
+        fieldnames.append("gender")
 
         result["net_time"] = nettime
         fieldnames.append("net_time")
         
-        result["net_pace"] = netpace
-        fieldnames.append("net_pace") 
+        result["gross_time"] = grosstime
+        fieldnames.append("gross_time") 
         
-        result['rank_overall'] = rank_overall
+        for split in splits:
+            split_name = split[0].replace("Split+@+","")
+            split_time = split[1]
+            split_pace = split[2]
+            split_speed = split[3].replace("+"," ").replace("\\", "")
+        
+        result[split_name + " time"] = split_time
+        fieldnames.append(split_name + " time")
+        
+        result[split_name + " pace"] = split_pace
+        fieldnames.append(split_name + " pace")
+        
+        result[split_name + " speed"] = split_speed
+        fieldnames.append(split_name + " speed")
+        
+        print(rank_category)
+        result['rank_overall'] = rank[0] + "/" + participants[0]
         fieldnames.append('rank_overall')
 
-        result['rank_gender'] = rank_gender
+        if len(rank_category) > 1:
+            result['rank_gender'] = rank[1] + "/" + participants[1]
         fieldnames.append('rank_gender')
 
-        result['rank_ag'] = rank_ag
+        if len(rank_category) > 2:
+            result['rank_gender'] = rank[2] + "/" + participants[2]
         fieldnames.append('rank_ag')
 
-        for split in split_list:
-            if len(split) > 1:
-                split_name = split[0].text.strip().replace('Split @ ','')
-                split_time = split[1].text.strip()
-                split_pace = split[2].text.strip()
-                split_speed = split[3].text.strip()
-            elif len(split) == 1: 
-                gun_time = split[0].text.strip().replace('Full Course - Gun Time - ','')
-        
-            result[split_name + " time"] = split_time
-            fieldnames.append(split_name + " time")
-        
-            result[split_name + " pace"] = split_pace
-            fieldnames.append(split_name + " pace")
-        
-            result[split_name + " speed"] = split_speed
-            fieldnames.append(split_name + " speed")
-
-        result["gun_time"] = gun_time
-        fieldnames.append('gun_time')
-        
-       
         #Generate dictionary of result
         # Write to csv
         eventfile= os.path.join(eventdir, category + ".csv")
