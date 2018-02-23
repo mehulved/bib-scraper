@@ -164,8 +164,10 @@ for bibno in range(1,100000,1):
         fieldnames.append('rank_gender')
 
         if len(rank_category) > 2:
-            result['rank_gender'] = rank[2] + "/" + participants[2]
+            result['rank_ag'] = rank[2] + "/" + participants[2]
+            result['ag_name'] = rank_category[2]
         fieldnames.append('rank_ag')
+        fieldnames.append('ag_name')
 
         #Generate dictionary of result
         # Write to csv
