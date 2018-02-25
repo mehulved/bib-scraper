@@ -141,21 +141,20 @@ for bibno in range(1,100000,1):
         fieldnames.append("gross_time") 
         
         for split in splits:
-            split_name = split[0].replace("Split+@+","")
+            split_name = split[0].replace("Split+@+","").replace("+"," ")
             split_time = split[1]
             split_pace = split[2]
             split_speed = split[3].replace("+"," ").replace("\\", "")
         
-        result[split_name + " time"] = split_time
-        fieldnames.append(split_name + " time")
+            result[split_name + " time"] = split_time
+            fieldnames.append(split_name + " time")
         
-        result[split_name + " pace"] = split_pace
-        fieldnames.append(split_name + " pace")
+            result[split_name + " pace"] = split_pace
+            fieldnames.append(split_name + " pace")
         
-        result[split_name + " speed"] = split_speed
-        fieldnames.append(split_name + " speed")
+            result[split_name + " speed"] = split_speed
+            fieldnames.append(split_name + " speed")
         
-        print(rank_category)
         result['rank_overall'] = rank[0] + "/" + participants[0]
         fieldnames.append('rank_overall')
 
