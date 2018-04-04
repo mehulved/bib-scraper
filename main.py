@@ -59,6 +59,7 @@ def requests_retry_session(
     session.mount('https://', adapter)
     return session
 
+
 eventdir = eventname.replace("+","_")
 if not os.path.exists(eventdir):
     os.makedirs(eventdir)
@@ -76,9 +77,9 @@ for bibno in range(bibstart,bibend,1):
     fieldnames = []
     participant_name=""
 
-    
+
     #Fetching the data
-    userfile = os.path.join(eventhtml, str(bibno) + ".html") 
+    userfile = os.path.join(eventhtml, str(bibno) + ".html")
     if not os.path.exists(userfile):
         fetch_time = datetime.now()
         print("Requesting data for bib no: {} at {}.".format(bibno, fetch_time))
@@ -113,7 +114,7 @@ for bibno in range(bibstart,bibend,1):
             rank_gender = ranks[1].text.replace('of ','/')
             if len(ranks) == 2:
                 ag_name = ""
-                rank_ag = ""  
+                rank_ag = ""
             if len(ranks) == 3:
                 ag_name = rank_header[3].text
                 rank_ag = ranks[2].text.replace('of ','/')
@@ -131,10 +132,10 @@ for bibno in range(bibstart,bibend,1):
                       split_list.append(split)
            except:
                pass
-        
-    
+
+
         # Write the data to a dictionary
-        
+
         print("Processing bib no: {}".format(bibno))
 
         result["fetch_time"] = fetch_time
@@ -142,22 +143,22 @@ for bibno in range(bibstart,bibend,1):
 
         result["bib"] = bibno
         fieldnames.append("bib")
-    
+
         result["name"] = participant_name
         fieldnames.append("name")
-        
+
         result["category"] = category
         fieldnames.append("category")
-        
+
         result['ag_name'] = ag_name
         fieldnames.append('ag_name')
 
         result["net_time"] = nettime
         fieldnames.append("net_time")
-        
+
         result["net_pace"] = netpace
-        fieldnames.append("net_pace") 
-        
+        fieldnames.append("net_pace")
+
         result['rank_overall'] = rank_overall
         fieldnames.append('rank_overall')
 
@@ -173,22 +174,22 @@ for bibno in range(bibstart,bibend,1):
                 split_time = split[1].text.strip()
                 split_pace = split[2].text.strip()
                 split_speed = split[3].text.strip()
-            elif len(split) == 1: 
+            elif len(split) == 1:
                 gun_time = split[0].text.strip().replace('Full Course - Gun Time - ','')
-        
+
             result[split_name + " time"] = split_time
             fieldnames.append(split_name + " time")
-        
+
             result[split_name + " pace"] = split_pace
             fieldnames.append(split_name + " pace")
-        
+
             result[split_name + " speed"] = split_speed
             fieldnames.append(split_name + " speed")
 
         result["gun_time"] = gun_time
         fieldnames.append('gun_time')
-        
-       
+
+
         #Generate dictionary of result
         # Write to csv
         eventfile= os.path.join(eventdir, category + ".csv")
