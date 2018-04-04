@@ -23,7 +23,7 @@ print("Job started at: {}".format(datetime.now()))
 
 
 def get_event_id(eventname):
-    event_search_url="https://www.sportstimingsolutions.in/result_search.php?term=" + eventname.split(' ')[0]
+    event_search_url="https://www.sportstimingsolutions.in/result_search.php?term=" + eventname.replace(' ','+')
     req = requests.get(event_search_url)
     if req.ok:
         event_list = simplejson.loads(req.content)
