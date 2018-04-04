@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import ConfigParser
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -13,8 +14,12 @@ import sys
 from time import sleep
 from datetime import datetime
 
-# User Variables
-eventname="Tata Mumbai Marathon 2018"
+# Read config file
+config = ConfigParser.ConfigParser()
+config.readfp(open(sys.argv[1]))
+eventname=config.get('event','name')
+bibstart=config.getint('bib','start')
+bibend=config.getint('bib', 'end')
 
 # Application Variables
 results_url="https://www.sportstimingsolutions.in/resultstable1.php"
@@ -63,7 +68,7 @@ if not os.path.exists(eventhtml):
 
 eventId = get_event_id(eventname)
 
-for bibno in range(1,200,1):
+for bibno in range(bibstart,bibend,1):
     rank = []
     participants = []
     rank_category = []
