@@ -1,7 +1,17 @@
 beautifulsoup4==4.6.0
+blessings==1.7
+bpython==0.17.1
 certifi==2018.1.18
 chardet==3.0.4
+curtsies==0.3.0
+greenlet==0.4.15
 idna==2.6
+pkg-resources==0.0.0
+Pygments==2.3.1
 requests==2.18.4
 simplejson==3.13.2
+six==1.12.0
+typing==3.6.6
+unicodecsv==0.14.1
 urllib3==1.22
+wcwidth==0.1.7

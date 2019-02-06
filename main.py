@@ -8,11 +8,12 @@ from requests.packages.urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import simplejson
 import urllib
-import csv
+import unicodecsv as csv
 import os
 import sys
 from time import sleep
 from datetime import datetime
+import codecs
 
 # Read config file
 config = ConfigParser.ConfigParser()
@@ -87,7 +88,7 @@ for bibno in range(bibstart,bibend,1):
         postdata={"eventId":eventId, "eventname":eventname, "bibno":bibno}
         req = requests_retry_session().post(results_url, data=postdata)
         content = req.text
-        with open(userfile, 'w') as participant_html:
+        with codecs.open(userfile, 'w', 'utf-8') as participant_html:
             participant_html.write(content)
     else:
         print("Opening existing file for bib no: {}.".format(bibno))
