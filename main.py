@@ -29,7 +29,7 @@ print("Job started at: {}".format(datetime.now()))
 
 def get_event_id(eventname):
     event_search_url="https://www.sportstimingsolutions.in/result_search.php?term=" + eventname.replace(' ','+')
-    req = requests.get(event_search_url)
+    req = requests.get(event_search_url, verify=False)
     if req.ok:
         event_list = simplejson.loads(req.content)
         for event in event_list:
@@ -47,6 +47,7 @@ def requests_retry_session(
     session=None,
 ):
     session = session or requests.Session()
+    session.verify = False
     retry = Retry(
         total=retries,
         read=retries,
