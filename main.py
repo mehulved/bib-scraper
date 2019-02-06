@@ -96,43 +96,27 @@ for bibno in range(bibstart,bibend,1):
 
     # Parsing the html content
     soup = BeautifulSoup(content, "html.parser")
-    heading_tags = soup.find_all(['h1','h2','h3','h4','h5'])
-    if len(heading_tags) > 0:
-        participant_name = heading_tags[2].text
-        category = heading_tags[4].text
+    if len(soup.findAll(name="div")) > 0:
+        participant_name = soup.find(name="input", attrs={"name": "firstname"}).get("value")
+        category = soup.find(name="input", attrs={"name": "race_name"}).get("value")
+        gun_time = soup.find(name="input", attrs={"name": "gun_time"}).get("value")
 
-        timing_table = soup.table.extract()
-        participant_timing = timing_table.find_all('td')
-        if len(participant_timing) > 0:
-            nettime = participant_timing[0].text
-            netpace = participant_timing[1].text
-
-        rank_table = soup.table.extract()
-        rank_header = rank_table.find_all('th')
-        ranks = rank_table.find_all('td')
+        rank_name = soup.findAll(name="input", attrs={"name": "bracket_name[]"})
+        ranks = soup.findAll(name="input", attrs={"name":"bracket_rank[]"})
         if len(ranks) > 0:
-            rank_overall = ranks[0].text.replace('of ','/')
-            rank_gender = ranks[1].text.replace('of ','/')
+            rank_overall = ranks[0].get("value")
+            rank_gender = ranks[1].get("value")
             if len(ranks) == 2:
                 ag_name = ""
                 rank_ag = ""
             if len(ranks) == 3:
-                ag_name = rank_header[3].text
-                rank_ag = ranks[2].text.replace('of ','/')
+                ag_name = rank_name[2].get("value")
+                rank_ag = ranks[2].get("value")
 
-        split_list = []
-        splits_table = soup.table.extract()
-        splits_header_row = splits_table.tr.extract()
-        splits_header = splits_header_row.find_all('th')
-        if len(splits_header) > 0:
-           try:
-               while True:
-                   split_row = splits_table.tr.extract()
-                   split = split_row.find_all('td')
-                   if len(split) > 0:
-                      split_list.append(split)
-           except:
-               pass
+        splits = simplejson.loads(urllib.unquote(soup.findAll(name="input", attrs={"name":'split_time'})[0].get("value")))
+        if len(splits) > 0:
+            nettime = splits[0][1]
+            netpace = splits[0][2]
 
 
         # Write the data to a dictionary
@@ -169,14 +153,12 @@ for bibno in range(bibstart,bibend,1):
         result['rank_ag'] = rank_ag
         fieldnames.append('rank_ag')
 
-        for split in split_list:
+        for split in splits:
             if len(split) > 1:
-                split_name = split[0].text.strip().replace('Split @ ','')
-                split_time = split[1].text.strip()
-                split_pace = split[2].text.strip()
-                split_speed = split[3].text.strip()
-            elif len(split) == 1:
-                gun_time = split[0].text.strip().replace('Full Course - Gun Time - ','')
+                split_name = split[0].strip().replace('+',' ').replace('Split @ ','')
+                split_time = split[1].strip()
+                split_pace = split[2].strip()
+                split_speed = split[3].strip()
 
             result[split_name + " time"] = split_time
             fieldnames.append(split_name + " time")
