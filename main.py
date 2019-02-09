@@ -91,7 +91,8 @@ for bibno in range(bibstart,bibend,1):
         with codecs.open(userfile, 'w', 'utf-8') as participant_html:
             participant_html.write(content)
     else:
-        print("Opening existing file for bib no: {}.".format(bibno))
+        fetch_time = datetime.now()
+        print("Opening existing data for bib no: {} at {}.".format(bibno, fetch_time))
         with open(userfile, 'r') as contentfile:
             content = contentfile.read()
 
@@ -106,7 +107,10 @@ for bibno in range(bibstart,bibend,1):
         ranks = soup.findAll(name="input", attrs={"name":"bracket_rank[]"})
         if len(ranks) > 0:
             rank_overall = ranks[0].get("value")
-            rank_gender = ranks[1].get("value")
+            if len(ranks) == 1: ## Puru put this in
+                rank_gender = -999999
+            else:
+                rank_gender = ranks[1].get("value")
             if len(ranks) == 2:
                 ag_name = ""
                 rank_ag = ""
@@ -118,7 +122,6 @@ for bibno in range(bibstart,bibend,1):
         if len(splits) > 0:
             nettime = splits[0][1]
             netpace = splits[0][2]
-
 
         # Write the data to a dictionary
 
@@ -150,6 +153,14 @@ for bibno in range(bibstart,bibend,1):
 
         result['rank_gender'] = rank_gender
         fieldnames.append('rank_gender')
+
+        while False:
+            try:
+                result['rank_gender'] = rank_gender
+                fieldnames.append('rank_gender')
+            except:
+                print("Could not find or handle gender rank for Bib #{}".format(bibno))
+                break
 
         result['rank_ag'] = rank_ag
         fieldnames.append('rank_ag')
